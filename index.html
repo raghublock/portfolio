@@ -397,10 +397,8 @@ footer { padding: 32px 48px; display: flex; justify-content: space-between; alig
 </footer>
 
 <script>
-// ── TELEGRAM BOT CONFIG ──
-// Apna Bot Token aur Chat ID yahan daalo
-const TELEGRAM_BOT_TOKEN = "APNA_BOT_TOKEN_YAHAN"; // Replace with your NEW token after revoking
-const TELEGRAM_CHAT_ID   = "626936565";
+// ── FORMSPREE CONFIG — 100% Secure! ──
+const FORMSPREE_ID = "xkoqjoed";
 
 // Custom cursor
 const cursor = document.getElementById("cursor");
@@ -441,7 +439,7 @@ const revealObserver = new IntersectionObserver(entries => {
 }, { threshold: 0.1 });
 document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
 
-// ── FORM SUBMIT — Telegram pe seedha message! ──
+// ── FORM SUBMIT — Formspree (100% Secure, No Token Visible!) ──
 async function handleSubmit() {
   const name  = document.getElementById("fname").value.trim();
   const email = document.getElementById("femail").value.trim();
@@ -451,58 +449,37 @@ async function handleSubmit() {
   const successMsg = document.getElementById("successMsg");
   const errorMsg   = document.getElementById("errorMsg");
 
-  // Validation
   if (!name || !email) {
     alert("Please fill in your name and email!");
     return;
   }
 
-  // Button loading state
   btn.disabled = true;
   btn.textContent = "SENDING...";
   successMsg.style.display = "none";
   errorMsg.style.display   = "none";
 
-  // Message format jo Telegram pe aayega
-  const now = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-  const telegramMsg = `
-🔔 *NEW CONTACT FROM PORTFOLIO!*
-━━━━━━━━━━━━━━━━━━━━
-👤 *Name:* ${name}
-📧 *Email:* ${email}
-🏷️ *Project Type:* ${type || "Not specified"}
-📝 *Message:*
-${msg || "No message provided"}
-━━━━━━━━━━━━━━━━━━━━
-🕐 ${now}
-🌐 From: raghublock.github.io/portfolio
-  `.trim();
-
   try {
-    const res = await fetch(
-      `https://api.telegram.org/bot\${TELEGRAM_BOT_TOKEN}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: telegramMsg,
-          parse_mode: "Markdown"
-        })
-      }
-    );
+    const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        project_type: type || "Not specified",
+        message: msg || "No message provided",
+        _subject: `New Contact from Portfolio — ${name}`
+      })
+    });
 
-    const data = await res.json();
-
-    if (data.ok) {
-      // Success!
+    if (res.ok) {
       successMsg.style.display = "block";
       document.getElementById("fname").value  = "";
       document.getElementById("femail").value = "";
       document.getElementById("ftype").value  = "";
       document.getElementById("fmsg").value   = "";
     } else {
-      throw new Error(data.description || "Telegram API error");
+      throw new Error("Formspree error");
     }
   } catch (err) {
     console.error("Error:", err);
